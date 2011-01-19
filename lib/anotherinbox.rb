@@ -15,14 +15,19 @@ class Anotherinbox < Object
           log.info("First email for [#{gmail.mailbox(mailbox)}], forwarding..")
           fwd                 = gmail.message
           fwd.to              = target_email
-          fwd.subject         = email.subject
+          fwd.subject         = "New Sender: #{email.subject}"
           fwd.content_type    = "text/html"
           fwd.body            = email.parts.last.body.to_s rescue nil
           fwd.body          ||= email.body.to_s
+          fwd.body            = "-------------------------- ANOTHERINBOX ----------------------------------
+          You have received a message from : #{mailbox}
+          We have created a new label : #{mailbox}
+          -------------------------- ANOTHERINBOX ----------------------------------" + fwd.body
           fwd.deliver!
         end
         email.label(mailbox)
         email.unread!
+        email.archive!
         log.info("\tProcessing #{email[:subject]}")
       end
     end
@@ -30,16 +35,22 @@ class Anotherinbox < Object
   end
 
   def self.daily_digest(email_address, password, target_email)
-    def self.email_template(new_messages)
+    def self.email_template(new_messages, account)
+      # we all know, inline styles sucks. sadly, it's the
+      # only way to get them into gmail.
       response = ""
-      response += "<h1>Daily Digest for #{Date.yesterday}</h1>"
-      new_messages.each {|m| response += "<li>#{m[0]}: <strong>#{m[1]}</strong> </li>"}
+      response += "<h1 style='margin-left: 40px; color: #000000;'>Daily Digest for #{Date.yesterday}</h1>"
+      response += "<h3 style='color: #aaaaaa; margin-left: 40px; margin-top: -20px; margin-bottom: 30px;'>for #{account}</h3>"
+      response += "<ul style='width: 90%;'>"
+      new_messages.each {|m| response += "<li style='margin-bottom: 10px; list-style: none; color: #3485ae; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>#{m[0]}: <strong style='color: #000000; font-weight: normal;'>#{m[1]}</strong> </li>"}
+      response += "</ul>"
       return response
     end
 
-    log = Logger.new(STDOUT)
-    log.info("Account: #{email_address}")
-    emails = []
+    log         = Logger.new(STDOUT)
+    emails      = []
+    aib_domain  = email_address.split("@")[1]
+
     Gmail.new(email_address, password) do |gmail|
       gmail.inbox.emails(:on => Date.yesterday).each do |email|
         mailbox = email[:to][0].mailbox.downcase rescue "unknown"
@@ -50,9 +61,9 @@ class Anotherinbox < Object
         log.info("Sending daily digest with #{emails.size} entries..")
         digest                 = gmail.message
         digest.to              = target_email
-        digest.subject         = "Daily Digest for #{Date.yesterday}"
+        digest.subject         = "[#{aib_domain}] Daily Digest for #{Date.yesterday}"
         digest.content_type    = "text/html"
-        digest.body            = self.email_template(emails)
+        digest.body            = self.email_template(emails, aib_domain)
         digest.deliver!
       end
     end
