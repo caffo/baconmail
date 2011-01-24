@@ -17,12 +17,12 @@ class Anotherinbox < Object
           fwd.to              = target_email
           fwd.subject         = "New Sender: #{email.subject}"
           fwd.content_type    = "text/html"
-          fwd.body            = email.parts.last.body.to_s rescue nil
-          fwd.body          ||= email.body.to_s
-          fwd.body            = "-------------------------- ANOTHERINBOX ----------------------------------
-          You have received a message from : #{mailbox}
-          We have created a new label : #{mailbox}
-          -------------------------- ANOTHERINBOX ----------------------------------" + fwd.body
+          body                = email.parts.last.body.to_s rescue nil
+          body              ||= email.body.to_s
+          fwd.body            = "-------------------------- ANOTHERINBOX ----------------------------------<br/>
+          You have received a message from : #{mailbox}<br/>
+          We have created a new label : #{mailbox}<br/>
+          -------------------------- ANOTHERINBOX ----------------------------------<br/><br/>" + body
           fwd.deliver!
         end
         email.label(mailbox)
@@ -42,7 +42,7 @@ class Anotherinbox < Object
       response += "<h1 style='margin-left: 40px; color: #000000;'>Daily Digest for #{Date.yesterday}</h1>"
       response += "<h3 style='color: #aaaaaa; margin-left: 40px; margin-top: -20px; margin-bottom: 30px;'>for #{account}</h3>"
       response += "<ul style='width: 90%;'>"
-      new_messages.each {|m| response += "<li style='margin-bottom: 10px; list-style: none; color: #3485ae; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>#{m[0]}: <strong style='color: #000000; font-weight: normal;'>#{m[1]}</strong> </li>"}
+      new_messages.sort.each {|m| response += "<li style='margin-bottom: 10px; list-style: none; color: #3485ae; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>#{m[0]}: <strong style='color: #000000; font-weight: normal;'>#{m[1]}</strong> </li>"}
       response += "</ul>"
       return response
     end
@@ -52,20 +52,22 @@ class Anotherinbox < Object
     aib_domain  = email_address.split("@")[1]
 
     Gmail.new(email_address, password) do |gmail|
-      gmail.inbox.emails(:on => Date.yesterday).each do |email|
+      gmail.mailbox('[Gmail]/All Mail').emails(:on => Date.yesterday).each do |email|
+        next if email.subject.match("Daily Digest for") rescue nil
+        next if "#{email.from[0]['mailbox']}@#{email.from[0]['host']}" == email_address
         mailbox = email[:to][0].mailbox.downcase rescue "unknown"
         emails << [mailbox, email.subject]
       end
 
       if emails.size > 0
-        log.info("Sending daily digest with #{emails.size} entries..")
-        digest                 = gmail.message
-        digest.to              = target_email
-        digest.subject         = "[#{aib_domain}] Daily Digest for #{Date.yesterday}"
-        digest.content_type    = "text/html"
-        digest.body            = self.email_template(emails, aib_domain)
-        digest.deliver!
-      end
+              log.info("Sending daily digest with #{emails.size} entries..")
+              digest                 = gmail.message
+              digest.to              = target_email
+              digest.subject         = "[#{aib_domain}] Daily Digest for #{Date.yesterday}"
+              digest.content_type    = "text/html"
+              digest.body            = self.email_template(emails, aib_domain)
+              digest.deliver!
+            end
     end
     log.info("Process finished")
   end
