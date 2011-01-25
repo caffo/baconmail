@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "anotherinbox.gemspec",
     "bin/anotherinbox",
     "lib/anotherinbox.rb",
     "test/helper.rb",
