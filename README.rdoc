@@ -18,7 +18,7 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 * To better replicate the defender concept, disable the spam filter following {this instructions}[http://www.mydigitallife.info/2008/11/24/how-to-disable-and-deactivate-spam-filter-protection-in-gmail-or-google-mail/]
 
 == Setup instructions
-* Install the gem as usual
+* Install the gem as usual:
 
     $ gem install anotherinbox
 
@@ -31,11 +31,12 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
     personal:
       email: personal@email.com
 
-* Add the following lines to your cron tab
+* Add the following lines to your cron tab:
 
     */5  * * * * anotherinbox process
     55 04 * * * anotherinbox digest
 
+That will ensure the script organize your mailbox each 5 minutes. It will also send you the daily digest at 04:55am.
 
 == Contributing to anotherinbox
 
