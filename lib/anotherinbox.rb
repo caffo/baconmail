@@ -67,7 +67,7 @@ class Anotherinbox < Object
               digest.content_type    = "text/html"
               digest.body            = self.email_template(emails, aib_domain)
               digest.deliver!
-            end
+      end
     end
     log.info("Process finished")
   end
