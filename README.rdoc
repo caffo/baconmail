@@ -2,7 +2,7 @@
 
 By Rodrigo Franco
 
-The original {Otherinbox Defender}[http://grab.by/grabs/404f4ac6585cf2b09402d18e0285980e.png] is no more. Sadly, the newest version is subpar and do not meet my needs. This project attempts to reproduce the core functionalities of OIB Defender using a GMail account. As of right now, the following functionalities are implemented:
+The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] is no more. Sadly, the newest version is subpar and do not meet my needs. This project attempts to reproduce the core functionalities of OIB Defender using a GMail account. As of right now, the following functionalities are implemented:
 
 * Emails are automatically labeled by mailbox name
 * First email sent to a new mailbox is forwarded to your personal email address
@@ -31,7 +31,11 @@ The original {Otherinbox Defender}[http://grab.by/grabs/404f4ac6585cf2b09402d18e
     personal:
       email: personal@email.com
 
-* Execute
+* Add the following lines to your cron tab
+
+    */5  * * * * anotherinbox process
+    55 04 * * * anotherinbox digest
+
 
 == Contributing to anotherinbox
 
