@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+
+require 'rubygems'
+require 'yaml'
+require 'anotherinbox'
+
+if ARGV[0]
+  settings  =  YAML::load(File.open("#{ENV['HOME']}/.anotherinbox"))
+  case ARGV[0]
+  when "process"
+    settings["accounts"].each do |s|
+      Anotherinbox.process_inbox!(s["username"],
+                                  s["password"],
+                                  s["email"])
+    end
+  when "digest"
+     settings["accounts"].each do |s|
+      Anotherinbox.daily_digest(s["username"],
+                                s["password"],
+                                s["email"],
+                                settings["config"])
+    end
+  end
+else
+  puts "anotherinbox [process | digest]"
+end
