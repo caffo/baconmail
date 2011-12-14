@@ -40,6 +40,7 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
       aws_key: KEY-GOES-HERE
       aws_secret: SECRET-GOES-HERE
 
+* Just one account is required, but you can have more than one if you want.
 * To enable the digest previews, change use_preview to true and enter your AWS credentials (and bucket name).
 
 * Add the following lines to your cron tab:
