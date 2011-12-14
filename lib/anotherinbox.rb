@@ -100,6 +100,8 @@ class Anotherinbox < Object
     emails      = []
     aib_domain  = email_address.split("@")[1]
 
+    log.info("Account: #{email_address}")
+
     Gmail.new(email_address, password) do |gmail|
       gmail.mailbox('[Gmail]/All Mail').emails(:on => (Date.today - 1)).each do |email|
         next if email.subject.match("Daily Digest for") rescue nil
