@@ -30,6 +30,10 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
         password:  password42
         email:  personal@email.com
 
+      - username: anotheranotherinbox@gmail.com
+        password:  password42!
+        email:  personal2@email.com
+
     config:
       use_preview: false
       bucket: anotherinbox.amazon.bucket
