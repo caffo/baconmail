@@ -4,25 +4,25 @@ $:.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'rubygems'
 require 'yaml'
-require 'anotherinbox'
+require 'baconmail'
 
 if ARGV[0]
-  settings  =  YAML::load(File.open("#{ENV['HOME']}/.anotherinbox"))
+  settings  =  YAML::load(File.open("#{ENV['HOME']}/.baconmail"))
   case ARGV[0]
   when "process"
     settings["accounts"].each do |s|
-      Anotherinbox.process_inbox!(s["username"],
+      Baconmail.process_inbox!(s["username"],
                                   s["password"],
                                   s["email"])
     end
   when "digest"
      settings["accounts"].each do |s|
-      Anotherinbox.daily_digest(s["username"],
+      Baconmail.daily_digest(s["username"],
                                 s["password"],
                                 s["email"],
                                 settings["config"])
     end
   end
 else
-  puts "anotherinbox [process | digest]"
+  puts "baconmail [process | digest]"
 end

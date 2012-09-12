@@ -1,4 +1,4 @@
-= Anotherinbox
+= Baconmail
 
 By Rodrigo Franco
 
@@ -7,7 +7,7 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 * Emails are automatically labeled by mailbox name
 * First email sent to a new mailbox is forwarded to your personal email address
 * Daily digest sent to your personal email address, with the list of emails received the day before
-* Emails previews can be generated, so you can easily see yesterday messages without login into your anotherinbox mailbox. (Optional)
+* Emails previews can be generated, so you can easily see yesterday messages without login into your baconmail mailbox. (Optional)
 
 == Getting started (Pre-requisites)
 
@@ -21,22 +21,22 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 == Setup instructions
 * Install the gem as usual:
 
-    $ gem install anotherinbox
+    $ gem install baconmail
 
-* Create a .anotherinbox file in your home directory. It should look like this:
+* Create a .baconmail file in your home directory. It should look like this:
 
     accounts:
-      - username: anotherinbox@gmail.com
+      - username: caconmail@gmail.com
         password:  password42
         email:  personal@email.com
 
-      - username: anotheranotherinbox@gmail.com
+      - username: anotherbaconmail@gmail.com
         password:  password42!
         email:  personal2@email.com
 
     config:
       use_preview: false
-      bucket: anotherinbox.amazon.bucket
+      bucket: baconmail.amazon.bucket
       aws_key: KEY-GOES-HERE
       aws_secret: SECRET-GOES-HERE
 
@@ -45,12 +45,12 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 
 * Add the following lines to your cron tab:
 
-    */5  * * * * anotherinbox process
-    55 04 * * * anotherinbox digest
+    */5  * * * * baconmail process
+    55 04 * * * baconmail digest
 
 That will ensure the script organizes your mailbox each 5 minutes. It will also send you the daily digest at 04:55am.
 
-== Contributing to anotherinbox
+== Contributing to baconmail
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
