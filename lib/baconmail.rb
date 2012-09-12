@@ -5,7 +5,7 @@ require 'date'
 require 'digest/sha1'
 require 'aws/s3'
 
-class Anotherinbox < Object
+class Baconmail < Object
   def self.process_inbox!(email_address, password, target_email)
     log = Logger.new(STDOUT)
     log.info("Account: #{email_address}")
@@ -21,10 +21,10 @@ class Anotherinbox < Object
           fwd.content_type    = "text/html"
           body                = email.parts.last.body.to_s rescue nil
           body              ||= email.body.to_s
-          fwd.body            = "-------------------------- ANOTHERINBOX ----------------------------------<br/>
+          fwd.body            = "-------------------------- BACONMAIL ----------------------------------<br/>
           You have received a message from : #{mailbox}<br/>
           We have created a new label : #{mailbox}<br/>
-          -------------------------- ANOTHERINBOX ----------------------------------<br/><br/>" + body
+          -------------------------- BACONMAIL ----------------------------------<br/><br/>" + body
           fwd.deliver!
         end
         email.label(mailbox)
@@ -77,7 +77,7 @@ class Anotherinbox < Object
       )
 
       # set file prefix. useful when we have more than one
-      # anotherinbox account running in the same script instance
+      # baconmail account running in the same script instance
       prefix   = email_address.gsub("@", "_").gsub(".", "_")
       
       #binding.pry

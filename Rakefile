@@ -12,7 +12,7 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "anotherinbox"
+  gem.name = "baconmail"
   gem.homepage = "http://github.com/caffo/anotherinbox"
   gem.license = "MIT"
   gem.summary = "gmail based otherinbox defender alternative"
@@ -47,7 +47,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "anotherinbox #{version}"
+  rdoc.title = "baconmail #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
