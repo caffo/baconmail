@@ -11,7 +11,7 @@ class Anotherinbox < Object
     log.info("Account: #{email_address}")
     Gmail.new(email_address, password) do |gmail|
       gmail.inbox.emails(:unread).each do |email|
-        mailbox = email[:to][0].mailbox.downcase rescue "unknown"
+        mailbox = email[:to].detect{|mail| mail.host == email_address.split("@").last}.mailbox.downcase rescue "unknown"
         gmail.labels.new(mailbox)
         if gmail.mailbox(mailbox).count == 0
           log.info("First email for [#{gmail.mailbox(mailbox)}], forwarding..")
