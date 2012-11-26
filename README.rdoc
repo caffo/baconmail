@@ -1,6 +1,6 @@
 = Baconmail
 
-By Rodrigo Franco
+By Rodrigo Franco and Marcos Tapajos
 
 The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] is no more. Sadly, the current version is subpar and do not meet my needs. This project attempts to reproduce the core functionalities of OIB Defender using a GMail account. As of right now, the following functionalities are implemented:
 
