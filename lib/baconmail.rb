@@ -64,7 +64,7 @@ class Baconmail < Object
             log.info("Sending daily digest with #{emails.size} entries..")
             digest                 = gmail.message
             digest.to              = target_email
-            digest.subject         = "[#{aib_domain}] Daily Digest for #{(Date.today - 1)}"
+            digest.subject         = "[#{aib_domain}] Bacon Mail for #{(Date.today - 1)}"
             digest.content_type    = "text/html"
             digest.body            = self.email_template(emails, aib_domain, configs, email_address)
             digest.deliver!
@@ -77,12 +77,12 @@ class Baconmail < Object
       # we all know, inline styles sucks. sadly, it's the
       # only way to get them into gmail.
       response = ""
-      response += "<h1 style='margin-left: 40px; color: #000000;'>Daily Digest for #{(Date.today - 1)}</h1>"
-      response += "<h3 style='color: #aaaaaa; margin-left: 40px; margin-top: -10px; margin-bottom: 30px;'>for #{account}</h3>"
+      response += "<h1 style='margin-left: 40px; color: #DC6582;'>Bacon Mail for #{(Date.today - 1)}</h1>"
+      response += "<h3 style='color: #F59FAC; margin-left: 40px; margin-top: -10px; margin-bottom: 30px;'>for <a href='http://#{account}' style='color: #F59FAC;'>#{account}</a></h3>"
       response += "<ul style='width: 90%;'>"
 
       new_messages.sort_by{|x| x[0]}.each do |m|
-        response += "<li style='margin-bottom: 10px; list-style: none; color: #3485ae; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>"
+        response += "<li style='margin-bottom: 10px; list-style: none; color: #DC6582; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>"
         response += m[0]
         response += ": <strong style='color: #000000; font-weight: normal;'>"
 
@@ -93,12 +93,12 @@ class Baconmail < Object
           response += email_address.gsub("@", "_").gsub(".", "_")
           response += "_"
           response += Digest::SHA1.hexdigest(m[1])
-          response += ".html'>#{m[1]}</a>"
+          response += ".html' style='color: #000;'>#{m[1]}</a>"
         else
           response += m[1]
         end
 
-        response += "</strong> </li>"
+        response += "</li>"
       end
 
       response += "</ul>"
