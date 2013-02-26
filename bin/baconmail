@@ -7,20 +7,14 @@ require 'yaml'
 require 'baconmail'
 
 if ARGV[0]
-  settings  =  YAML::load(File.open("#{ENV['HOME']}/.baconmail"))
   case ARGV[0]
   when "process"
-    settings["accounts"].each do |s|
-      Baconmail.process_inbox!(s["username"],
-                                  s["password"],
-                                  s["email"])
+    Baconmail::Settings.instance.accounts.each do |account|
+      Baconmail::Inbox.process_inbox!(account)
     end
   when "digest"
-     settings["accounts"].each do |s|
-      Baconmail.daily_digest(s["username"],
-                                s["password"],
-                                s["email"],
-                                settings["config"])
+    Baconmail::Settings.instance.accounts.each do |account|
+      Baconmail::Digest.daily_digest(account, Baconmail::Settings.instance.config)
     end
   end
 else
