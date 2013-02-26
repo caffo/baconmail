@@ -19,5 +19,6 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'gmail', ">= 0.4.0"
   s.add_runtime_dependency 'aws-s3'
+  s.add_development_dependency 'rake'
 end
 
