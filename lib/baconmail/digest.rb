@@ -56,7 +56,7 @@ module Baconmail
             response += ".s3.amazonaws.com/"
             response += email_address.gsub("@", "_").gsub(".", "_")
             response += "_"
-            response += Digest::SHA1.hexdigest(m[1])
+            response += ::Digest::SHA1.hexdigest(m[1])
             response += ".html' style='color: #000;'>#{m[1]}</a>"
           else
             response += m[1]
@@ -89,7 +89,7 @@ module Baconmail
         end
           
         new_messages.sort_by{|x| x[0]}.each do |m|
-          filename = Digest::SHA1.hexdigest(m[1])
+          filename = ::Digest::SHA1.hexdigest(m[1])
           AWS::S3::S3Object.store("#{prefix}_#{filename}.html", m[2].to_s, configs.bucket, :access => :public_read)
         end
     end
