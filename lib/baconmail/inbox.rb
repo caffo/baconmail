@@ -5,7 +5,7 @@ module Baconmail
       log = Logger.new(STDOUT)
       log.info("Account: #{account.username}")
       Gmail.new(account.username, account.password) do |gmail|
-        gmail.inbox.emails(:unread).each do |email|
+        gmail.mailbox('[Gmail]/All Mail').emails(gm: 'in:inbox label: unread').each do |email|
           mailbox = email[:to].detect{|mail| mail.host == account.username.split("@").last}.mailbox.downcase rescue "unknown"
           gmail.labels.new(mailbox)
           if gmail.mailbox(mailbox).count == 0
