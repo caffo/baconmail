@@ -1,4 +1,12 @@
 # encoding: UTF-8
+
+class Object
+  def to_imap_date
+    date = respond_to?(:utc) ? utc.to_s : to_s
+    Date.parse(date).strftime('%d-%b-%Y')
+  end
+end
+
 module Baconmail
   class Digest
     def self.daily_digest(account, configs)
@@ -7,14 +15,15 @@ module Baconmail
       aib_domain  = account.username.split("@")[1]
     
       log.info("Account: #{account.username}")
-    
       Gmail.new(account.username, account.password) do |gmail|
         gmail.mailbox('[Gmail]/All Mail').emails(:on => (Date.today - 1)).each do |email|
-           
           next if email.subject.match("Daily Digest for") rescue nil
           next if "#{email.from[0]['mailbox']}@#{email.from[0]['host']}" == account.username
             
           mailbox = email[:to][0].mailbox.downcase rescue "unknown"
+
+          next if Baconmail::Settings.instance.instance_variable_get(:@blacklist).include?(mailbox)
+
           body    = email.html_part.nil? ? email.body : email.html_part.body
           emails << [mailbox, email.subject, body]
         end
