@@ -7,6 +7,7 @@ group :development do
   gem "shoulda"
   gem "bundler"
   gem "pry"
+  gem "rspec"
 end
 
 gemspec
