@@ -40,8 +40,13 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
       aws_key: KEY-GOES-HERE
       aws_secret: SECRET-GOES-HERE
 
+    blacklist:
+        - amazon
+        - twitter
+
 * Just one account is required, but you can have more than one if you want.
 * To enable the digest previews, change use_preview to true and enter your AWS credentials (and bucket name).
+* If you add label to the blacklist, it will not be listed on the digest.
 
 * Add the following lines to your cron tab:
 
