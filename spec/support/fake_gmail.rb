@@ -19,6 +19,10 @@ class FakeGmail
       label: nil,
       unread!: nil,
       archive!: nil,
+      subject: "Hi there",
+      from: "admin@example.com",
+      html_part: nil,
+      body: Mail::Body.new,
       :[] => [ double(host: nil, mailbox: "INBOX") ]
     )
   end
