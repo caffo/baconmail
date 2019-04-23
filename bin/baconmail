@@ -14,7 +14,7 @@ if ARGV[0]
     end
   when "digest"
     Baconmail::Settings.instance.accounts.each do |account|
-      Baconmail::Digest.daily_digest(account, Baconmail::Settings.instance.config)
+      Baconmail::Digest.new(account, Baconmail::Settings.instance.config).daily_digest
     end
   end
 else
