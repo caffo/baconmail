@@ -21,5 +21,9 @@ RSpec.describe Baconmail::Settings do
 
       expect(settings.config).to eq(config)
     end
+
+    it "sets the blacklist" do
+      expect(settings.blacklist).to eq(["facebook", "microsoft"])
+    end
   end
 end
