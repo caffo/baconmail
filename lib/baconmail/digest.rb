@@ -23,6 +23,9 @@ module Baconmail
         next if digest?(email) || from_me?(email)
 
         mailbox = get_mailbox_name(email)
+
+        next if blacklisted?(mailbox)
+
         body    = email.html_part.nil? ? email.body : email.html_part.body
 
         collection << [mailbox, email.subject, body]
@@ -74,6 +77,10 @@ module Baconmail
     def get_mailbox_name(email)
       email[:to][0].mailbox.downcase
     rescue "unknown"
+    end
+
+    def blacklisted?(mailbox)
+      Baconmail::Settings.instance.blacklist.include?(mailbox)
     end
 
     def emails
