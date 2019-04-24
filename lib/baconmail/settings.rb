@@ -2,11 +2,13 @@
 module Baconmail
   class Settings
     include Singleton
-  
-    attr_reader :accounts, :config
+
+    BACONMAIL_CONFIG_PATH = "#{ENV['HOME']}/.baconmail"
+
+    attr_reader :accounts, :config, :blacklist
   
     def initialize
-      settings   = YAML::load(File.open("#{ENV['HOME']}/.baconmail"))
+      settings = YAML::load(File.open(BACONMAIL_CONFIG_PATH))
 
       @blacklist = [*settings["blacklist"]]
       @accounts  = settings["accounts"].map{ |account| Account.new(account["username"], account["password"], account["email"]) }

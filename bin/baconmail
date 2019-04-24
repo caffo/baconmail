@@ -10,11 +10,11 @@ if ARGV[0]
   case ARGV[0]
   when "process"
     Baconmail::Settings.instance.accounts.each do |account|
-      Baconmail::Inbox.process_inbox!(account)
+      Baconmail::Inbox.new(account).process_inbox!
     end
   when "digest"
     Baconmail::Settings.instance.accounts.each do |account|
-      Baconmail::Digest.daily_digest(account, Baconmail::Settings.instance.config)
+      Baconmail::Digest.new(account, Baconmail::Settings.instance.config).daily_digest
     end
   end
 else
