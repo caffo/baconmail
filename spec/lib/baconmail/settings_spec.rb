@@ -16,7 +16,9 @@ RSpec.describe Baconmail::Settings do
         false,
         "baconmail.amazon.bucket",
         "AKIAIOSFODNN7EXAMPLE",
-        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "682174746236-k25ubsois96bfah7mbnfa5texample.apps.googleusercontent.com",
+        "_IDLjNKfRsoXHGXG3exampl3"
       )
 
       expect(settings.config).to eq(config)

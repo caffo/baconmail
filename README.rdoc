@@ -39,6 +39,8 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
       bucket: baconmail.amazon.bucket
       aws_key: KEY-GOES-HERE
       aws_secret: SECRET-GOES-HERE
+      google_client_id: ID-GOES-HERE
+      google_client_secret: SECRET-GOES-HERE
 
     blacklist:
         - amazon

@@ -12,6 +12,8 @@ config:
   bucket: baconmail.amazon.bucket
   aws_key: AKIAIOSFODNN7EXAMPLE
   aws_secret: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  google_client_id: 682174746236-k25ubsois96bfah7mbnfa5texample.apps.googleusercontent.com
+  google_client_secret: _IDLjNKfRsoXHGXG3exampl3
 
 blacklist:
   - facebook
