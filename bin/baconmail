@@ -16,7 +16,9 @@ if ARGV[0]
     Baconmail::Settings.instance.accounts.each do |account|
       Baconmail::Digest.new(account, Baconmail::Settings.instance.config).daily_digest
     end
+  when "authorize"
+    Baconmail::Authorizer.call
   end
 else
-  puts "baconmail [process | digest]"
+  puts "baconmail [process | digest | authorize]"
 end
