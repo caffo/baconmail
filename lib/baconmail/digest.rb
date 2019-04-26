@@ -1,42 +1,11 @@
 # encoding: UTF-8
-
-class Object
-  def to_imap_date
-    date = respond_to?(:utc) ? utc.to_s : to_s
-    Date.parse(date).strftime('%d-%b-%Y')
-  end
-end
-
 module Baconmail
-  class Digest
-    attr_reader :account, :configs
-
-    def initialize(account, configs)
-      @account = account
-      @configs = configs
-    end
-
+  class Digest < Service
     def daily_digest
       log.info("Account: #{account.username}")
 
-      digest_emails = Array(emails).each_with_object([]) do |email, collection|
-        message = gmail.get_user_message("me", email.id, format: 'full')
-        mailbox = get_mailbox_name(message)
-
-        next if digest?(message) || from_me?(message) || blacklisted?(mailbox)
-
-        html_part = message.payload.parts.find {|part| part.mime_type == "text/html" }
-        text_part = message.payload.parts.find {|part| part.mime_type == "text/plain" }
-        subject   = message.payload.headers.find {|h| h.name == "Subject" }.value
-        body      = (html_part || text_part).body.data
-
-        collection << [mailbox, subject, body]
-      end
-
       if digest_emails.size > 0
         generate_previews(digest_emails) if configs.use_preview
-
-        log.info("Sending daily digest with #{digest_emails.size} entries..")
 
         send_digest(digest_emails)
       end
@@ -44,55 +13,52 @@ module Baconmail
       log.info("Process finished")
     end
 
-    def send_digest(digest_emails)
-      subject = "[#{aib_domain}] Bacon Mail for #{date}"
-      body    = email_template(digest_emails)
-      mail    = Mail.new(body: body, to: account.email, subject: subject, content_type: "text/html")
-      digest  = Gmail::Message.new(raw: mail.encoded)
+    def digest_emails
+      query = "in:inbox after:#{date} before:#{date + 1}"
 
-      gmail.send_user_message("me", digest)
+      @digest_emails ||= get_emails(query).each_with_object([]) do |email, collection|
+        message = get_full_message(email.id)
+        mailbox = get_mailbox_name(message)
+
+        next if digest?(message) || from_me?(message) || blacklisted?(mailbox)
+
+        body    = retrieve_body(message)
+        subject = read_header(message, "Subject")
+
+        collection << [mailbox, subject, body]
+      end
     end
 
-    def log
-      @log ||= Baconmail.logger
+    def send_digest(emails)
+      log.info("Sending daily digest with #{emails.size} entries..")
+
+      digest = compose_message(
+        to: account.email,
+        body: email_template(emails),
+        subject: "[#{aib_domain}] Bacon Mail for #{date}"
+      )
+
+      gmail.send_user_message("me", digest)
     end
 
     def aib_domain
       account.username.split("@")[1]
     end
 
-    def gmail
-      @gmail ||= Baconmail.authorized_gmail(account.username)
-    end
-
     def digest?(email)
-      email.payload.headers.find {|h| h.name == "Subject" }.value.match("Bacon Mail for")
+      read_header(email, "Subject").match("Bacon Mail for")
     rescue
       false
     end
 
     def from_me?(email)
-      email.payload.headers.find {|h| h.name == "From" }.value.match(account.username)
+      read_header(email, "From").match(account.username)
     rescue
       false
     end
 
-    def get_mailbox_name(email)
-      to = email.payload.headers.find {|h| h.name == "To" }.value
-      address = Mail::Address.new(to).address
-      address.split("@").first.downcase
-    rescue => e
-      log.info("Couldn't get mailbox name for #{email}: #{e}")
-
-      "unknown"
-    end
-
     def blacklisted?(mailbox)
       Baconmail::Settings.instance.blacklist.include?(mailbox)
-    end
-
-    def emails
-      gmail.list_user_messages("me", q: "in:inbox after:#{date} before:#{date + 1}").messages
     end
 
     def email_template(new_messages)
