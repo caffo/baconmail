@@ -19,16 +19,18 @@ module Baconmail
     def daily_digest
       log.info("Account: #{account.username}")
 
-      digest_emails = emails.each_with_object([]) do |email, collection|
-        next if digest?(email) || from_me?(email)
+      digest_emails = Array(emails).each_with_object([]) do |email, collection|
+        message = gmail.get_user_message("me", email.id, format: 'full')
+        mailbox = get_mailbox_name(message)
 
-        mailbox = get_mailbox_name(email)
+        next if digest?(message) || from_me?(message) || blacklisted?(mailbox)
 
-        next if blacklisted?(mailbox)
+        html_part = message.payload.parts.find {|part| part.mime_type == "text/html" }
+        text_part = message.payload.parts.find {|part| part.mime_type == "text/plain" }
+        subject   = message.payload.headers.find {|h| h.name == "Subject" }.value
+        body      = (html_part || text_part).body.data
 
-        body    = email.html_part.nil? ? email.body : email.html_part.body
-
-        collection << [mailbox, email.subject, body]
+        collection << [mailbox, subject, body]
       end
 
       if digest_emails.size > 0
@@ -43,16 +45,16 @@ module Baconmail
     end
 
     def send_digest(digest_emails)
-      digest              = gmail.message
-      digest.to           = account.email
-      digest.subject      = "[#{aib_domain}] Bacon Mail for #{date}"
-      digest.content_type = "text/html"
-      digest.body         = email_template(digest_emails)
-      digest.deliver!
+      subject = "[#{aib_domain}] Bacon Mail for #{date}"
+      body    = email_template(digest_emails)
+      mail    = Mail.new(body: body, to: account.email, subject: subject, content_type: "text/html")
+      digest  = Gmail::Message.new(raw: mail.encoded)
+
+      gmail.send_user_message("me", digest)
     end
 
     def log
-      @log ||= Logger.new(STDOUT)
+      @log ||= Baconmail.logger
     end
 
     def aib_domain
@@ -60,23 +62,29 @@ module Baconmail
     end
 
     def gmail
-      @gmail ||= Gmail.new(account.username, account.password)
+      @gmail ||= Baconmail.authorized_gmail
     end
 
     def digest?(email)
-      email.subject.match("Daily Digest for")
+      email.payload.headers.find {|h| h.name == "Subject" }.value.match("Bacon Mail for")
     rescue
-      nil
+      false
     end
 
     def from_me?(email)
-      from = email.from[0]
-      "#{from['mailbox']}@#{from['host']}" == account.username
+      email.payload.headers.find {|h| h.name == "From" }.value.match(account.username)
+    rescue
+      false
     end
 
     def get_mailbox_name(email)
-      email[:to][0].mailbox.downcase
-    rescue "unknown"
+      to = email.payload.headers.find {|h| h.name == "To" }.value
+      address = Mail::Address.new(to).address
+      address.split("@").first.downcase
+    rescue => e
+      log.info("Couldn't get mailbox name for #{email}: #{e}")
+
+      "unknown"
     end
 
     def blacklisted?(mailbox)
@@ -84,37 +92,37 @@ module Baconmail
     end
 
     def emails
-      gmail.mailbox('[Gmail]/All Mail').emails(on: date)
+      gmail.list_user_messages("me", q: "in:inbox after:#{date} before:#{date + 1}").messages
     end
 
     def email_template(new_messages)
-        # we all know, inline styles sucks. sadly, it's the
-        # only way to get them into gmail.
-        response = ""
-        response += "<h1 style='margin-left: 40px; color: #DC6582;'>Bacon Mail for #{date}</h1>"
-        response += "<h3 style='color: #F59FAC; margin-left: 40px; margin-top: -10px; margin-bottom: 30px;'>for <a href='http://#{aib_domain}' style='color: #F59FAC;'>#{aib_domain}</a></h3>"
-        response += "<ul style='width: 90%;'>"
+      # we all know, inline styles sucks. sadly, it's the
+      # only way to get them into gmail.
+      response = ""
+      response += "<h1 style='margin-left: 40px; color: #DC6582;'>Bacon Mail for #{date}</h1>"
+      response += "<h3 style='color: #F59FAC; margin-left: 40px; margin-top: -10px; margin-bottom: 30px;'>for <a href='http://#{aib_domain}' style='color: #F59FAC;'>#{aib_domain}</a></h3>"
+      response += "<ul style='width: 90%;'>"
 
-        new_messages.sort_by(&:first).each do |m|
-          response += "<li style='margin-bottom: 10px; list-style: none; color: #DC6582; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>"
-          response += m[0]
-          response += ": <strong style='color: #000000; font-weight: normal;'>"
+      new_messages.sort_by(&:first).each do |m|
+        response += "<li style='margin-bottom: 10px; list-style: none; color: #DC6582; border-bottom: 1px dotted #ccc; padding-bottom: 10px; font-weight: bold;'>"
+        response += m[0]
+        response += ": <strong style='color: #000000; font-weight: normal;'>"
 
-          if configs.use_preview
-            response += "<a href='http://#{configs.bucket}.s3.amazonaws.com/"
-            response += digest_email_address.gsub("@", "_").gsub(".", "_")
-            response += "_"
-            response += ::Digest::SHA1.hexdigest(m[1])
-            response += ".html' style='color: #000;'>#{m[1]}</a>"
-          else
-            response += m[1]
-          end
-
-          response += "</li>"
+        if configs.use_preview
+          response += "<a href='http://#{configs.bucket}.s3.amazonaws.com/"
+          response += digest_email_address.gsub("@", "_").gsub(".", "_")
+          response += "_"
+          response += ::Digest::SHA1.hexdigest(m[1])
+          response += ".html' style='color: #000;'>#{m[1]}</a>"
+        else
+          response += m[1]
         end
 
-        response += "</ul>"
-        return response
+        response += "</li>"
+      end
+
+      response += "</ul>"
+      return response
     end
 
     def digest_email_address
