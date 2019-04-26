@@ -62,7 +62,7 @@ module Baconmail
     end
 
     def gmail
-      @gmail ||= Baconmail.authorized_gmail
+      @gmail ||= Baconmail.authorized_gmail(account.username)
     end
 
     def digest?(email)

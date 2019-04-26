@@ -21,9 +21,9 @@ module Baconmail
     @logger ||= Logger.new(STDOUT)
   end
 
-  def self.authorized_gmail
+  def self.authorized_gmail(username)
     Gmail::GmailService.new.tap do |g|
-      g.authorization = Authorizer.credentials
+      g.authorization = Authorizer.credentials(username)
       g.client_options.application_name = 'Baconmail'
     end
   end

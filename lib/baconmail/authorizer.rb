@@ -5,28 +5,27 @@ require 'googleauth/stores/file_token_store'
 module Baconmail
   class Authorizer
     OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
-    USER_ID = 'default'
     SCOPE = Google::Apis::GmailV1::AUTH_SCOPE
 
     class << self
-      def call
+      def call(user_id)
         raise "Google Client ID or Google Client Secret are invalid." if invalid_keys?
 
-        credentials || fetch_credentials
+        credentials(user_id) || fetch_credentials(user_id)
       end
 
-      def credentials
-        authorizer.get_credentials(USER_ID)
+      def credentials(user_id)
+        authorizer.get_credentials(user_id)
       end
 
-      def fetch_credentials
-        Baconmail.logger.info "Open the following URL in your browser and authorize the application."
+      def fetch_credentials(user_id)
+        Baconmail.logger.info "Open the following URL in your browser, log in to #{user_id} and authorize the application."
         Baconmail.logger.info authorization_url
         Baconmail.logger.info "Enter the authorization code:"
 
         code = STDIN.gets.chomp
 
-        authorizer.get_and_store_credentials_from_code(user_id: USER_ID, code: code, base_url: OOB_URI)
+        authorizer.get_and_store_credentials_from_code(user_id: user_id, code: code, base_url: OOB_URI)
       end
 
       def authorizer
