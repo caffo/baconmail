@@ -1,5 +1,5 @@
 RSpec.describe Baconmail::Digest do
-  let(:account) { Baconmail::Account.new("", "", "") }
+  let(:account) { Baconmail::Account.new("", "") }
   let(:configs) { Baconmail::Settings.instance.config }
   let(:digest) { described_class.new(account, configs) }
   let(:fake_gmail) { FakeGmail.new }

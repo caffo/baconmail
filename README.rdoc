@@ -27,11 +27,9 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 
     accounts:
       - username: caconmail@gmail.com
-        password:  password42
         email:  personal@email.com
 
       - username: anotherbaconmail@gmail.com
-        password:  password42!
         email:  personal2@email.com
 
     config:

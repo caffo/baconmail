@@ -12,7 +12,7 @@ module Baconmail
       configs = settings["config"]
 
       @blacklist = [*settings["blacklist"]]
-      @accounts  = settings["accounts"].map { |account| Account.new(account["username"], account["password"], account["email"]) }
+      @accounts  = settings["accounts"].map { |account| Account.new(account["username"], account["email"]) }
       @config    = init_config(settings["config"])
     end
 
