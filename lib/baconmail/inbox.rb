@@ -10,64 +10,104 @@ module Baconmail
     def process_inbox!
       log.info("Account: #{account.username}")
 
-      emails.each do |email|
-        mailbox = find_mailbox_name(email)
-        create_label(mailbox)
+      Array(get_emails).each do |email|
+        message = gmail.get_user_message("me", email.id, format: 'full')
+        label_name = get_mailbox_name(message)
+        label_id = find_or_create_label(label_name)
 
-        forward_email(mailbox, email) if first_email?(mailbox)
+        forward_email(label_name, message) if first_email_with_label?(label_name, message)
 
-        email.label(mailbox)
-        email.unread!
-        email.archive!
+        add_label(label_id, message)
+        archive(message)
 
-        log.info("\tProcessing #{email[:subject]}")
+        subject = message.payload.headers.find {|h| h.name == "Subject" }.value
+        log.info("\tProcessing #{subject}")
       end
 
       log.info("Process finished")
     end
 
-    def emails
-      gmail.mailbox('[Gmail]/All Mail').emails(gm: 'in:inbox label: unread')
+    def get_emails(query = "in:inbox is:unread")
+      gmail.list_user_messages("me", q: query).messages
     end
 
-    def find_mailbox_name(email)
-      email[:to].find do |mail|
-        mail.host == account.username.split("@").last
-      end.mailbox.downcase
+    def get_mailbox_name(email)
+      to = email.payload.headers.find {|h| h.name == "To" }.value
+      address = Mail::Address.new(to).address
+      address.split("@").first.downcase
     rescue => e
+      log.info("Couldn't get mailbox name for #{email}: #{e}")
+
       "unknown"
     end
 
-    def forward_email(mailbox, email)
-      log.info("First email for [#{gmail.mailbox(mailbox)}], forwarding..")
+    def get_message(email)
+      gmail.get_user_message("me", email.id, format: 'full')
+    end
 
-      fwd                 = gmail.message
-      fwd.to              = account.email
-      fwd.subject         = "New Sender: #{email.subject}"
-      fwd.content_type    = "text/html"
-      body                = email.parts.last.body.to_s rescue nil
-      body              ||= email.body.to_s
-      fwd.body            = "-------------------------- BACONMAIL ----------------------------------<br/>
+    def forward_email(mailbox, email)
+      log.info("First email for [#{mailbox}], forwarding..")
+
+      email_subject = email.payload.headers.find {|h| h.name == "Subject" }.value
+      fwd_subject   = "New Sender: #{email_subject}"
+
+      email_body    = email.payload.body&.data
+
+      if email_body.nil?
+        html_part   = email.payload.parts.find { |part| part.mime_type == "text/html" }
+        text_part   = email.payload.parts.find { |part| part.mime_type == "text/plain" }
+        email_body  = (html_part || text_part).body.data
+      end
+
+      fwd_body      = "-------------------------- BACONMAIL ----------------------------------<br/>
       You have received a message from : #{mailbox}<br/>
       We have created a new label : #{mailbox}<br/>
-      -------------------------- BACONMAIL ----------------------------------<br/><br/>" + body
-      fwd.deliver!
+      -------------------------- BACONMAIL ----------------------------------<br/><br/>" + email_body
+
+      mail  = Mail.new(body: fwd_body, to: account.email, subject: fwd_subject, content_type: "text/html")
+      fwd   = Gmail::Message.new(raw: mail.encoded)
+
+      gmail.send_user_message("me", fwd)
     end
 
     def gmail
-      @gmail ||= Gmail.new(account.username, account.password)
+      @gmail ||= Baconmail.authorized_gmail
     end
 
     def log
-      @log ||= Logger.new(STDOUT)
+      @log ||= Baconmail.logger
     end
 
-    def create_label(label)
-      gmail.labels.new(label)
+    def find_or_create_label(label_name)
+      existing_labels[label_name] || create_label(label_name)
     end
 
-    def first_email?(mailbox)
-      gmail.mailbox(mailbox).count == 0
+    def create_label(label_name)
+      label = gmail.create_user_label("me", Gmail::Label.new(name: label_name))
+      existing_labels[label_name] = label.id
+    end
+
+    def existing_labels
+      @existing_labels ||= gmail.list_user_labels("me").labels.inject({}) do |cache, label|
+        cache[label.name] = label.id
+        cache
+      end
+    end
+
+    def first_email_with_label?(label_name, email)
+      query = "in:inbox label:#{label_name} before:#{email.internal_date}"
+
+      get_emails(query).nil?
+    end
+
+    def add_label(label_id, message)
+      request = Gmail::ModifyMessageRequest.new(add_label_ids: [label_id])
+      gmail.modify_message("me", message.id, request)
+    end
+
+    def archive(message)
+      request = Gmail::ModifyMessageRequest.new(remove_label_ids: ["INBOX"])
+      gmail.modify_message("me", message.id, request)
     end
   end
 end
