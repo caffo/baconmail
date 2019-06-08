@@ -1,5 +1,5 @@
 RSpec.describe Baconmail::Inbox do
-  let(:account) { Baconmail::Account.new("", "", "") }
+  let(:account) { Baconmail::Account.new("", "") }
 
   describe "#process_inbox!" do
     let(:inbox) { described_class.new(account) }

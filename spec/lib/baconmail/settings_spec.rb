@@ -4,8 +4,8 @@ RSpec.describe Baconmail::Settings do
 
     it "sets the accounts" do
       accounts = [
-        Baconmail::Account.new('caconmail@gmail.com', 'password42', 'personal@email.com'),
-        Baconmail::Account.new('anotherbaconmail@gmail.com', 'password42!', 'personal2@email.com')
+        Baconmail::Account.new('caconmail@gmail.com', 'personal@email.com'),
+        Baconmail::Account.new('anotherbaconmail@gmail.com', 'personal2@email.com')
       ]
 
       expect(settings.accounts).to eq(accounts)
@@ -16,7 +16,9 @@ RSpec.describe Baconmail::Settings do
         false,
         "baconmail.amazon.bucket",
         "AKIAIOSFODNN7EXAMPLE",
-        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "682174746236-k25ubsois96bfah7mbnfa5texample.apps.googleusercontent.com",
+        "_IDLjNKfRsoXHGXG3exampl3"
       )
 
       expect(settings.config).to eq(config)

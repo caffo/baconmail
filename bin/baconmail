@@ -14,9 +14,13 @@ if ARGV[0]
     end
   when "digest"
     Baconmail::Settings.instance.accounts.each do |account|
-      Baconmail::Digest.new(account, Baconmail::Settings.instance.config).daily_digest
+      Baconmail::Digest.new(account).daily_digest
+    end
+  when "authorize"
+    Baconmail::Settings.instance.accounts.each do |account|
+      Baconmail::Authorizer.call(account.username)
     end
   end
 else
-  puts "baconmail [process | digest]"
+  puts "baconmail [process | digest | authorize]"
 end
