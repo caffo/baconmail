@@ -23,6 +23,8 @@ The original {Otherinbox Defender}[http://mashable.com/2008/09/08/otherinbox/] i
 
     $ gem install baconmail
 
+* Obtain Gmail OAuth credentials for console application using {the wizard}[https://console.developers.google.com/flows/enableapi?apiid=gmail&pli=1].
+
 * Create a .baconmail file in your home directory. It should look like this:
 
     accounts:
