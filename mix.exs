@@ -5,7 +5,8 @@ defmodule Baconmail.MixProject do
     [
       app: :baconmail,
       version: "0.1.0",
-      elixir: "~> 1.8",
+      elixir: "~> 1.9",
+      escript: [main_module: Baconmail.CLI],
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -14,15 +15,15 @@ defmodule Baconmail.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :gmail]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:gmail, "~> 0.1"},
+      {:yaml_elixir, "~> 2.4"},
     ]
   end
 end

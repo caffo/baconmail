@@ -1,18 +1,20 @@
-defmodule Baconmail do
-  @moduledoc """
-  Documentation for Baconmail.
-  """
+defmodule Baconmail.CLI do
+  def main(argv) do
+    case Enum.at(argv, 0) do
+      "process" ->
+        Enum.each(accounts(), fn account ->
+          Baconmail.Inbox.process_inbox!(account)
+        end)
 
-  @doc """
-  Hello world.
+      "digest" ->
+        IO.puts("Not yet implemented")
 
-  ## Examples
+      _ ->
+        IO.puts("baconmail [process | digest]")
+    end
+  end
 
-      iex> Baconmail.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def accounts do
+    Application.fetch_env!(:baconmail, :accounts)
   end
 end
