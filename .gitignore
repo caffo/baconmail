@@ -23,3 +23,6 @@ erl_crash.dump
 baconmail-*.tar
 
 .elixir_ls
+
+# Ignore binary build
+baconmail

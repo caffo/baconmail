@@ -1,0 +1,29 @@
+# This should be moved to ~/.baconmail.exs
+
+import Config
+
+config :gmail, :oauth2,
+  client_id: "GMAIL_API_CLIENT_ID",
+  client_secret: "GMAIL_API_CLIENT_SECRET"
+
+config :gmail, :refresh_token, "GMAIL_REFRESH_TOKEN"
+
+config :baconmail, :accounts, [
+  %{
+    username: "ACCOUNT_EMAIL",
+    password: "ACCOUNT_EMAIL_PASSWORD",
+    email: "EMAIL_ADDRESS_TO_FORWARD_TO"
+  }
+]
+
+config :baconmail, :config, %{
+  use_preview: false,
+  bucket: "baconmail.amazon.bucket",
+  aws_key: "KEY-GOES-HERE",
+  aws_secret: "SECRET-GOES-HERE"
+}
+
+config :baconmail, :blacklist, [
+  "amazon",
+  "twitter"
+]

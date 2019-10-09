@@ -4,9 +4,9 @@ defmodule Baconmail.Inbox do
   def process_inbox!(account) do
     IO.puts("Account: #{account[:username]}")
 
-    Enum.each(emails(account[:email]), fn email ->
-      IO.puts("Not yet implemented")
-      IO.puts(email)
+    Enum.each(emails(account[:username]), fn message ->
+      IO.puts("===")
+      IO.inspect(message)
       # mailbox = find_mailbox_name(email)
       # create_label(mailbox)
 
@@ -23,7 +23,13 @@ defmodule Baconmail.Inbox do
   end
 
   def emails(email_address) do
-    # Gmail.User.threads(email_address)
-    ["email 1"]
+    {:ok, _pid} =
+      Gmail.User.start_mail(
+        email_address,
+        Application.fetch_env!(:gmail, :refresh_token)
+      )
+
+    {:ok, messages} = Gmail.User.messages(email_address, %{})
+    messages
   end
 end

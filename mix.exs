@@ -23,7 +23,7 @@ defmodule Baconmail.MixProject do
   defp deps do
     [
       {:gmail, "~> 0.1"},
-      {:yaml_elixir, "~> 2.4"},
+      {:yaml_elixir, "~> 2.4"}
     ]
   end
 end
