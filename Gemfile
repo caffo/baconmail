@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 
 gem "aws-s3"
-gem "gmail"
+gem "gmail", ">= 0.4.0"
 
 group :development do
   gem "shoulda"
